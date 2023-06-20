@@ -1,0 +1,10 @@
+services:
+  web:
+    build: .
+    container_name: backend_app
+
+  mqtt_broker:
+    image: emqx:latest
+    container_name: emqx_broker
+    ports:
+    - "18083:18083"
