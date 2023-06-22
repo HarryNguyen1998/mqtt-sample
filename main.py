@@ -1,26 +1,36 @@
-import sys
-import paho.mqtt.client as mqttc
+import logging
+import signal
+import time
 
-BROKER_ADDR = "mqtt_broker"
+from pub import Publisher
 
-def on_connect(client, userdata, flags, rc):
-    if rc == 0:
-        client.is_connected = True
-        print("MQTT connection established")
-    else:
-        print(f"MQTT connection failed, rc={rc}")
+logging.basicConfig(level=logging.DEBUG, format="%(levelname)-8s %(name)s: %(message)s")
+
+BROKER_ADDR = "emqx_broker"
+
+logger = logging.getLogger()
+
+RUNNING = True
+
+
+def shutdown_script(*args):
+    logger.info("Exiting...")
+    global RUNNING
+    RUNNING = False
+
 
 def main():
-    client = mqttc.Client("Pub")
-    client.on_connect = on_connect
+    signal.signal(signal.SIGINT, shutdown_script)
+    signal.signal(signal.SIGTERM, shutdown_script)
 
-    try:
-        client.connect(BROKER_ADDR)
-    except Exception as ex:
-        print(f"Connection failed, ex={ex}")
-        sys.exit(1)
+    logger.info("Starting...")
+    publisher = Publisher(BROKER_ADDR)
+    publisher.topic = "charger/1/connector/1/session/1"
+    publisher.connect()
 
-    client.loop_forever()
+    while RUNNING:
+        time.sleep(1)
+
 
 if __name__ == "__main__":
     main()
