@@ -1,4 +1,4 @@
-from infra.connector import MQTTConnector
+from .connector import MQTTConnector
 
 
 class Publisher(MQTTConnector):

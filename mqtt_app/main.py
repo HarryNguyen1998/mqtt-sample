@@ -4,8 +4,7 @@ import signal
 import sys
 import threading
 
-from infra.publisher import Publisher
-from infra.subscriber import Subscriber
+from infra.transport import Publisher, Subscriber
 from model.content_generator import generate_content
 
 logging.basicConfig(
@@ -62,7 +61,7 @@ def main():
         topic, content = generate_content()
         pub.topic = topic
         pub.publish(content, 2)
-        exit_flag.wait(5)
+        exit_flag.wait(10)
 
 
 if __name__ == "__main__":
