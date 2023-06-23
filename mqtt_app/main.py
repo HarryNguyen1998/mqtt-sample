@@ -3,8 +3,7 @@ import os
 import signal
 import threading
 
-from publisher.content_generator import generate_content
-from publisher.publisher import Publisher
+from publisher import Publisher, generate_content
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s %(levelname)-7s %(name)s: %(message)s"
@@ -27,7 +26,7 @@ def register_cleanup(pub: Publisher, exit_flag: threading.Event):
 def main():
     # Initialize
     exit_flag = threading.Event()
-    pub = Publisher(os.environ.get("BROKER_ADDR", "MSI.local"))
+    pub = Publisher(os.environ.get("BROKER_ADDR", "mqtt_broker"))
     pub.connect()
     register_cleanup(pub, exit_flag)
 
@@ -38,7 +37,7 @@ def main():
         topic, content = generate_content()
         pub.topic = topic
         pub.publish(content, 2)
-        exit_flag.wait(15)
+        exit_flag.wait(5)
 
 
 if __name__ == "__main__":
