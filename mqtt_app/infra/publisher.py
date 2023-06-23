@@ -1,8 +1,4 @@
-import logging
-
 from infra.connector import MQTTConnector
-
-logger = logging.getLogger(__name__)
 
 
 class Publisher(MQTTConnector):
