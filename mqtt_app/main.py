@@ -5,6 +5,7 @@ import sys
 import threading
 
 from infra.publisher import Publisher
+from infra.subscriber import Subscriber
 from model.content_generator import generate_content
 
 logging.basicConfig(
@@ -13,10 +14,11 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 
-def register_cleanup(pub: Publisher, exit_flag: threading.Event):
+def register_cleanup(pub: Publisher, sub: Subscriber, exit_flag: threading.Event):
     def cleanup(signalnum, handler):
         exit_flag.set()
         pub.disconnect()
+        sub.disconnect()
         logger.info("Goodbye")
 
     # Handles Ctrl-C when running from local.
@@ -29,24 +31,31 @@ def main():
     # Initialize.
     exit_flag = threading.Event()
     pub = Publisher(os.environ.get("BROKER_ADDR", "mqtt_broker"))
-    register_cleanup(pub, exit_flag)
+    sub = Subscriber(os.environ.get("BROKER_ADDR", "mqtt_broker"))
+    register_cleanup(pub, sub, exit_flag)
 
     # Connection.
     try:
         pub.connect()
+        sub.connect()
     except Exception as ex:
         logger.error(f"Failed to connect, ex={ex}")
         sys.exit(1)
 
     # Waiting for connection before publishing. The exit_flag is present since
     # signal could be raised while connection is in progress.
-    while (not pub.connected or pub.bad_connect) and not exit_flag.is_set():
+    while (
+        (not pub.connected or pub.bad_connect)
+        and (not pub.connected or pub.bad_connect)
+        and not exit_flag.is_set()
+    ):
         exit_flag.wait(1)
 
-    if pub.bad_connect:
+    if pub.bad_connect or sub.bad_connect:
         sys.exit(1)
 
     # Main loop.
+    sub.subscribe("charger/1/connector/1/session/1")
     logger.info("Running...")
     while not exit_flag.is_set():
         logger.info("Publishing...")
