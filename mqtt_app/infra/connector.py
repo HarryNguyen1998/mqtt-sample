@@ -33,7 +33,9 @@ class MQTTConnector(abc.ABC):
     def disconnect(self):
         """Closes connection to the MQTT broker."""
         logger.info(f"Disconnecting from {self._broker_addr}...")
+
         self.client.disconnect()
+        self.client.loop_stop()
 
         # Only wait for the disconnect if already connected.
         if self._connected:
@@ -41,15 +43,19 @@ class MQTTConnector(abc.ABC):
 
     @property
     def connected(self):
+        """Get the MQTT connection state. True, if connection was successful.
+        Otherwise, false."""
         return self._connected
 
     @property
     def bad_connect(self):
+        """Get the MQTT bad connection state. True, if connect callback was
+        called, but connection failed. Otherwise, false."""
         return self._bad_connect
 
     def on_connect(self, client, userdata, flags, conn_rc):
-        self._connected = True
         if conn_rc == 0:
+            self._connected = True
             logger.info("MQTT connection established")
         else:
             self._bad_connect = True
@@ -57,7 +63,6 @@ class MQTTConnector(abc.ABC):
 
     def on_disconnect(self, client, userdata, conn_rc):
         if conn_rc == 0:
-            self.client.loop_stop()
             self._disconnect_flag.set()
             logger.info("Disconnect successfully")
         else:
