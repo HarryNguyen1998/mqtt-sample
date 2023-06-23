@@ -34,6 +34,10 @@ def main():
     # Run the main loop.
     logger.info("Running...")
     while not exit_flag.is_set():
+        logger.info("Publishing...")
+        topic, content = generate_content()
+        pub.topic = topic
+        pub.publish(content, 2)
         exit_flag.wait(15)
 
 
