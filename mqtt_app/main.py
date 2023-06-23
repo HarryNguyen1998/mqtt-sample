@@ -3,7 +3,8 @@ import os
 import signal
 import threading
 
-from publisher import Publisher, generate_content
+from model.content_generator import generate_content
+from infra.publisher import Publisher
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s %(levelname)-7s %(name)s: %(message)s"
