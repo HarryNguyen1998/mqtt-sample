@@ -1,4 +1,5 @@
 import logging
+import threading
 
 import paho.mqtt.client as mqttc
 
@@ -15,6 +16,7 @@ class Publisher:
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
         self.topic = ""
+        self.disconnect_flag = threading.Event()
 
     def connect(self):
         """A non-blocking call to set up connection to the MQTT broker."""
@@ -24,6 +26,7 @@ class Publisher:
     def disconnect(self):
         """Closes connection to the MQTT broker."""
         self.client.disconnect()
+        self.disconnect_flag.wait(5)
 
     def publish(self, value, qos=0):
         """Publishes a JSON string to the MQTT broker.
@@ -41,6 +44,7 @@ class Publisher:
     def on_disconnect(self, client, userdata, conn_rc):
         if conn_rc == 0:
             self.client.loop_stop()
+            self.disconnect_flag.set()
             logger.info("MQTT disconnect successfully")
         else:
-            logger.error(f"MQTT connection failed, rc={conn_rc}")
+            logger.error(f"MQTT disconnect failed, rc={conn_rc}")
