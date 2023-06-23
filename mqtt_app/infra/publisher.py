@@ -11,24 +11,31 @@ class Publisher:
     """An MQTT publisher."""
 
     def __init__(self, broker_addr, name=""):
-        self.broker_addr = broker_addr
+        self._broker_addr = broker_addr
         self.client = mqttc.Client(name)
         if os.environ.get("APP_DEBUG"):
             self.client.enable_logger(logger)
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
         self.topic = ""
-        self.disconnect_flag = threading.Event()
+        self._connected = False
+        self._bad_connect = False
+        self._disconnect_flag = threading.Event()
 
     def connect(self):
-        """A non-blocking call to set up connection to the MQTT broker."""
-        self.client.connect_async(self.broker_addr)
+        """Set up connection to the MQTT broker."""
+        logger.info(f"Connecting to {self._broker_addr}...")
+        self.client.connect(self._broker_addr)
         self.client.loop_start()
 
     def disconnect(self):
         """Closes connection to the MQTT broker."""
+        logger.info(f"Disconnecting from {self._broker_addr}...")
         self.client.disconnect()
-        self.disconnect_flag.wait(5)
+        
+        # Only wait for the disconnect if already connected.
+        if self._connected:
+            self._disconnect_flag.wait(5)
 
     def publish(self, value, qos=0):
         """Publishes a JSON string to the MQTT broker.
@@ -38,15 +45,27 @@ class Publisher:
         self.client.publish(self.topic, value, qos)
 
     def on_connect(self, client, userdata, flags, conn_rc):
+        self._connected = True
         if conn_rc == 0:
             logger.info("MQTT connection established")
         else:
+            self._bad_connect = True
             logger.error(f"MQTT connection failed, rc={conn_rc}")
 
     def on_disconnect(self, client, userdata, conn_rc):
         if conn_rc == 0:
             self.client.loop_stop()
-            self.disconnect_flag.set()
-            logger.info("MQTT disconnect successfully")
+            self._disconnect_flag.set()
+            logger.info("Disconnect successfully")
         else:
-            logger.error(f"MQTT disconnect failed, rc={conn_rc}")
+            logger.error(f"Unexpected disconnect, rc={conn_rc}")
+
+        self._connected = False
+
+    @property
+    def connected(self):
+        return self._connected
+
+    @property
+    def bad_connect(self):
+        return self._bad_connect

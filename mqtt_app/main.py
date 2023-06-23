@@ -1,4 +1,5 @@
 import logging
+import sys
 import os
 import signal
 import threading
@@ -25,13 +26,27 @@ def register_cleanup(pub: Publisher, exit_flag: threading.Event):
 
 
 def main():
-    # Initialize
+    # Initialize.
     exit_flag = threading.Event()
     pub = Publisher(os.environ.get("BROKER_ADDR", "mqtt_broker"))
-    pub.connect()
+
+    # Connection.
+    try: 
+        pub.connect()
+    except Exception as ex:
+        logger.error(f"Failed to connect, ex={ex}")
+        sys.exit(1)
+
+    # Waiting for connection before publishing.
+    while not pub.connected:
+        exit_flag.wait(1)
+
+    if pub.bad_connect:
+        sys.exit(1)
+
     register_cleanup(pub, exit_flag)
 
-    # Run the main loop.
+    # Main loop.
     logger.info("Running...")
     while not exit_flag.is_set():
         logger.info("Publishing...")
