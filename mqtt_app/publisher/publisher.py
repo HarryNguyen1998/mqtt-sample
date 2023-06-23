@@ -1,4 +1,5 @@
 import logging
+import os
 import threading
 
 import paho.mqtt.client as mqttc
@@ -12,7 +13,8 @@ class Publisher:
     def __init__(self, broker_addr, name=""):
         self.broker_addr = broker_addr
         self.client = mqttc.Client(name)
-        self.client.enable_logger(logger)
+        if os.environ.get("APP_DEBUG"):
+            self.client.enable_logger(logger)
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
         self.topic = ""

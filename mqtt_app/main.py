@@ -7,7 +7,7 @@ from publisher.content_generator import generate_content
 from publisher.publisher import Publisher
 
 logging.basicConfig(
-    level=logging.DEBUG, format="%(thread)d [%(threadName)s] %(levelname)-6s %(name)s: %(message)s"
+    level=logging.DEBUG, format="%(asctime)s %(levelname)-7s %(name)s: %(message)s"
 )
 logger = logging.getLogger()
 
