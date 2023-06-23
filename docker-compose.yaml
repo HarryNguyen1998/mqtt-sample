@@ -5,6 +5,6 @@ services:
 
   mqtt_broker:
     image: emqx:latest
-    container_name: emqx_broker
+    container_name: mqtt_broker
     ports:
     - "18083:18083"
