@@ -13,4 +13,5 @@ class Publisher(MQTTConnector):
 
         :param value: the JSON string to be published.
         """
+        self.log.info(f"Publishing {value} to {self.topic}")
         self.client.publish(self.topic, value, qos)

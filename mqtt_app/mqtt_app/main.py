@@ -4,7 +4,7 @@ import sys
 import threading
 
 from mqtt_app.config import Config
-from mqtt_app.models.content_generator import generate_content
+from mqtt_app.models.content_generator import generate_content_stream
 from mqtt_app.transport import Publisher, Subscriber
 
 logging.basicConfig(
@@ -32,6 +32,8 @@ def main():
     pub = Publisher(Config.BROKER_ADDR, debug=Config.DEBUG_PRINT)
     sub = Subscriber(Config.BROKER_ADDR, debug=Config.DEBUG_PRINT)
     register_cleanup(pub, sub, exit_flag)
+    # An instance that represents different charger sessions.
+    content_generator = generate_content_stream()
 
     # Connection.
     try:
@@ -54,14 +56,12 @@ def main():
         sys.exit(1)
 
     # Main loop.
-    sub.subscribe("charger/1/connector/1/session/1")
-    logger.info("Running...")
+    sub.subscribe("charger/1/connector/1/session/+")
     while not exit_flag.is_set():
-        logger.info("Publishing...")
-        topic, content = generate_content()
+        topic, content = next(content_generator)
         pub.topic = topic
         pub.publish(content, 2)
-        exit_flag.wait(10)
+        exit_flag.wait(60)
 
 
 if __name__ == "__main__":
