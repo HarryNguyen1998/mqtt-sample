@@ -11,7 +11,9 @@ ENV PYTHONUNBUFFERED=1
 
 RUN apt-get update && apt-get install -y \
     # mysqlclient requirements.
-    default-libmysqlclient-dev build-essential
+    default-libmysqlclient-dev build-essential \
+    # check when DB is ready.
+    curl
 
 # Pip requirements.
 COPY ./requirements.txt .

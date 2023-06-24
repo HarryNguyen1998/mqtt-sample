@@ -10,13 +10,18 @@ services:
     ports:
       - 8000:8000
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
   db:
     image: mysql:latest
     environment:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=testing
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
+      timeout: 5s
+      retries: 10
     ports:
       - 3306:3306
 
