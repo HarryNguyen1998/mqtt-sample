@@ -3,6 +3,8 @@ asyncmy==0.2.8
 # Alembic requires this package to connect to the DB.
 cryptography==41.0.1
 fastapi==0.97.0
+# Make sure greenlet is installed for sqlalchemy, regardless of the platform.
+greenlet==2.0.2
 httpx==0.24.1
 mysqlclient==2.1.1
 pytest==7.4.0
