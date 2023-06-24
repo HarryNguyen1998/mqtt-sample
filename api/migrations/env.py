@@ -18,7 +18,7 @@ if config.config_file_name is not None:
 
 # add your model's MetaData object here
 # for 'autogenerate' support
-from src.db import orm
+from api.db import orm
 target_metadata = orm.Base.metadata
 
 
@@ -26,7 +26,7 @@ target_metadata = orm.Base.metadata
 # can be acquired:
 # my_important_option = config.get_main_option("my_important_option")
 # ... etc.
-from src.config import Config
+from api.config import Config
 config.set_main_option("sqlalchemy.url", Config.DB_URL)
 
 

@@ -1,7 +1,7 @@
-from src.db.orm import ChargerSessionOrm
+from api.db.orm import ChargerSessionOrm
+from api.models.charger_session import ChargerSessionModel
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-from src.models.charger_session import ChargerSessionModel
 
 
 class ChargerSessionRepository:

@@ -1,6 +1,6 @@
+from api.db.db import engine
+from api.routes import charger_sessions, ping
 from fastapi import FastAPI
-from src.db.db import engine
-from src.routes import charger_sessions, ping
 
 app = FastAPI()
 

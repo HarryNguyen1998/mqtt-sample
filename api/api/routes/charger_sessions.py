@@ -1,7 +1,7 @@
+from api.db.db import get_session
+from api.models.charger_session import ChargerSessionModel
+from api.repository import ChargerSessionRepository
 from fastapi import APIRouter, HTTPException
-from src.db.db import get_session
-from src.models.charger_session import ChargerSessionModel
-from src.repository import ChargerSessionRepository
 
 router = APIRouter()
 
