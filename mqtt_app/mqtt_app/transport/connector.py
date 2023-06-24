@@ -1,6 +1,5 @@
 import abc
 import logging
-import os
 import threading
 
 import paho.mqtt.client as mqttc
@@ -20,7 +19,7 @@ class MQTTConnector(abc.ABC):
         self.client.on_connect = self.on_connect
         self.client.on_disconnect = self.on_disconnect
 
-        if os.environ.get("APP_DEBUG"):
+        if debug:
             self.client.enable_logger(self.log)
 
     def connect(self):

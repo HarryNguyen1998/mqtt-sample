@@ -1,9 +1,9 @@
 import logging
-import os
 import signal
 import sys
 import threading
 
+from mqtt_app.config import Config
 from mqtt_app.models.content_generator import generate_content
 from mqtt_app.transport import Publisher, Subscriber
 
@@ -29,8 +29,8 @@ def register_cleanup(pub: Publisher, sub: Subscriber, exit_flag: threading.Event
 def main():
     # Initialize.
     exit_flag = threading.Event()
-    pub = Publisher(os.environ.get("BROKER_ADDR", "mqtt_broker"))
-    sub = Subscriber(os.environ.get("BROKER_ADDR", "mqtt_broker"))
+    pub = Publisher(Config.BROKER_ADDR, debug=Config.DEBUG_PRINT)
+    sub = Subscriber(Config.BROKER_ADDR, debug=Config.DEBUG_PRINT)
     register_cleanup(pub, sub, exit_flag)
 
     # Connection.

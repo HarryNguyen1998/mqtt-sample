@@ -20,7 +20,7 @@ services:
     environment:
       - DB_URL=mysql://root:root@db:3306/testing?charset=utf8mb4
       - BROKER_ADDR=mqtt_broker
-      - APP_DEBUG=true
+      - DEBUG_PRINT=true
     depends_on:
       db:
          condition: service_healthy
