@@ -1,5 +1,6 @@
+# Make sure greenlet is installed for sqlalchemy, regardless of the platform.
 greenlet==2.0.2
-mysqlclient==2.2.0
+mysqlclient==2.1.1
 paho-mqtt==1.6.1
 pydantic==1.10.9
 SQLAlchemy==1.4.48
