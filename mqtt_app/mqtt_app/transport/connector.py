@@ -31,13 +31,16 @@ class MQTTConnector(abc.ABC):
     def disconnect(self):
         """Closes connection to the MQTT broker."""
         self.log.info(f"Disconnecting from {self._broker_addr}...")
-
         self.client.disconnect()
-        self.client.loop_stop()
 
-        # Only wait for the disconnect if already connected.
-        if self._connected:
-            self._disconnect_flag.wait(5)
+        # We want to stop the network loop when:
+        # 1. Client is already disconnected from the broker.
+        # 2. Wait until a successful disconnection from the broker.
+        while not self._disconnect_flag.is_set() and self._connected:
+            self._disconnect_flag.wait(1)
+
+        self.client.loop_stop()
+        self.log.info("Disconnection finished.")
 
     @property
     def connected(self):
@@ -62,8 +65,8 @@ class MQTTConnector(abc.ABC):
     def on_disconnect(self, client, userdata, conn_rc):
         if conn_rc == 0:
             self._disconnect_flag.set()
-            self.log.info("Disconnect successfully")
         else:
             self.log.error(f"Unexpected disconnect, rc={conn_rc}")
 
         self._connected = False
+        self._bad_connect = False

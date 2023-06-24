@@ -1,10 +1,11 @@
 import logging
+from typing import Callable
 import signal
 import sys
 import threading
 
 from mqtt_app.config import Config
-from mqtt_app.models.content_generator import generate_content_stream
+from mqtt_app.models.content_generator import charger_sessions_gen
 from mqtt_app.transport import Publisher, Subscriber
 
 logging.basicConfig(
@@ -13,12 +14,9 @@ logging.basicConfig(
 logger = logging.getLogger()
 
 
-def register_cleanup(pub: Publisher, sub: Subscriber, exit_flag: threading.Event):
+def register_exit_signal_handler(shutdown: Callable[[], None]):
     def cleanup(signalnum, handler):
-        exit_flag.set()
-        pub.disconnect()
-        sub.disconnect()
-        logger.info("Goodbye")
+        shutdown()
 
     # Handles Ctrl-C when running from local.
     signal.signal(signal.SIGINT, cleanup)
@@ -31,34 +29,40 @@ def main():
     exit_flag = threading.Event()
     pub = Publisher(Config.BROKER_ADDR, debug=Config.DEBUG_PRINT)
     sub = Subscriber(Config.BROKER_ADDR, debug=Config.DEBUG_PRINT)
-    register_cleanup(pub, sub, exit_flag)
-    # An instance that represents different charger sessions.
     content_generator = generate_content_stream()
 
-    # Connection.
+
+    def shutdown():
+        pub.disconnect()
+        sub.disconnect()
+        exit_flag.set()
+        logger.info("Goodbye")
+
+    register_exit_signal_handler(shutdown)
+
+    # Setup connection.
     try:
         pub.connect()
         sub.connect()
     except Exception as ex:
-        logger.error(f"Failed to connect, ex={ex}")
+        logger.error(f"Abort because setup is wrong, ex={ex}")
         sys.exit(1)
 
-    # Waiting for connection before publishing. The exit_flag is present since
-    # signal could be raised while connection is in progress.
-    while (
-        (not pub.connected or pub.bad_connect)
-        and (not pub.connected or pub.bad_connect)
-        and not exit_flag.is_set()
-    ):
+    # Waiting loop.
+    while not exit_flag.is_set():
+        if (pub.connected and sub.connected):
+            break
+
+        if pub.bad_connect or sub.bad_connect:
+            logger.error("Abort because connection was refused.")
+            shutdown()
+
         exit_flag.wait(1)
-
-    if pub.bad_connect or sub.bad_connect:
-        sys.exit(1)
 
     # Main loop.
     sub.subscribe("charger/1/connector/1/session/+")
     while not exit_flag.is_set():
-        topic, content = next(content_generator)
+        topic, content = next(generator_instance)
         pub.topic = topic
         pub.publish(content, 2)
         exit_flag.wait(60)
