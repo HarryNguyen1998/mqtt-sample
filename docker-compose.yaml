@@ -2,11 +2,23 @@ services:
   web:
     build:
       context: ./api
-    command: uvicorn src.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+    command: /bin/bash -c ./entrypoint.sh
     volumes:
       - ./api:/api
+    environment:
+      - DB_URL=mysql+asyncmy://root:root@db:3306/testing?charset=utf8mb4
     ports:
       - 8000:8000
+    depends_on:
+      - db
+
+  db:
+    image: mysql:latest
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=testing
+    ports:
+      - 3306:3306
 
   mqtt_broker:
     image: emqx:latest
