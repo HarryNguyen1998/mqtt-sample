@@ -7,7 +7,14 @@ class ChargerSessionRepository:
     def __init__(self, session: Session):
         self._session = session
 
-    def create_charger_session(self, charger_session: ChargerSessionModel):
+    def create_charger_session(
+        self, charger_session: ChargerSessionModel
+    ) -> ChargerSessionOrm:
+        """Create a new charger session in DB.
+
+        :param charger_session: model that can be converted to ORM.
+        :return: the updated ORM mapped object.
+        """
         charger_session_orm = ChargerSessionOrm(**charger_session.dict(by_alias=True))
         self._session.add(charger_session_orm)
 

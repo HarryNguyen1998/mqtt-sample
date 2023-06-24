@@ -5,6 +5,8 @@ Base = declarative_base()
 
 
 class ChargerSessionOrm(Base):
+    """ORM mapped charger session."""
+
     __tablename__ = "charger_sessions"
     id = Column(Integer, primary_key=True)
     session_id = Column(Integer)

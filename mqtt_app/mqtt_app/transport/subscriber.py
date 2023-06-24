@@ -25,16 +25,17 @@ class Subscriber(MQTTConnector):
         decoded_msg = msg.payload.decode("utf-8")
         try:
             # Parse the payload.
+            self.log.info(f"Received message from topic message={decoded_msg} topic={msg.topic}")
             model = ChargerSessionModel.parse_raw(decoded_msg)
-            self.log.info(f"{msg.topic}: received {decoded_msg}")
 
             # Add payload to database.
+            self.log.info(f"Adding to DB message={decoded_msg}")
             with get_session() as session:
                 repo = ChargerSessionRepository(session)
                 repo.create_charger_session(model)
-            self.log.info(f"{msg.topic}: add to DB successfully.")
+            self.log.info(f"Added to DB successfully message={decoded_msg}")
 
         except ValidationError as ex:
-            self.log.error(f"{msg.topic} failed to validate, ex={ex}")
+            self.log.error(f"Failed to validate message={decoded_msg} ex={ex}")
         except exc.SQLAlchemyError as ex:
-            self.log.error(f"{msg.topic} failed to add to DB, ex={ex.args}")
+            self.log.error(f"Failed to add to DB message={decoded_msg} ex={ex.args}")

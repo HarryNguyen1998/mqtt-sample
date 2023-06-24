@@ -11,7 +11,7 @@ class MQTTConnector(abc.ABC):
     def __init__(self, broker_addr, name="", debug=False):
         self._broker_addr = broker_addr
         self._connected = False
-        self._bad_connect = False
+        self._bad_connected = False
         self._disconnect_flag = threading.Event()
         self.log = logging.getLogger(self.__class__.__name__)
 
@@ -24,13 +24,13 @@ class MQTTConnector(abc.ABC):
 
     def connect(self):
         """Set up connection to the MQTT broker."""
-        self.log.info(f"Connecting to {self._broker_addr}...")
+        self.log.info("Connection process started.")
         self.client.connect(self._broker_addr)
         self.client.loop_start()
 
     def disconnect(self):
         """Closes connection to the MQTT broker."""
-        self.log.info(f"Disconnecting from {self._broker_addr}...")
+        self.log.info("Disconnection process started.")
         self.client.disconnect()
 
         # We want to stop the network loop when:
@@ -40,7 +40,7 @@ class MQTTConnector(abc.ABC):
             self._disconnect_flag.wait(1)
 
         self.client.loop_stop()
-        self.log.info("Disconnection finished.")
+        self.log.info("Disconnection process finished.")
 
     @property
     def connected(self):
@@ -49,24 +49,25 @@ class MQTTConnector(abc.ABC):
         return self._connected
 
     @property
-    def bad_connect(self):
+    def bad_connected(self):
         """Get the MQTT bad connection state. True, if connect callback was
         called, but connection failed. Otherwise, false."""
-        return self._bad_connect
+        return self._bad_connected
 
     def on_connect(self, client, userdata, flags, conn_rc):
         if conn_rc == 0:
             self._connected = True
-            self.log.info("MQTT connection established")
+            self.log.info("Connection succeeded.")
         else:
-            self._bad_connect = True
-            self.log.error(f"MQTT connection failed, rc={conn_rc}")
+            self._bad_connected = True
+            self.log.error(f"Connection encountered error, rc={conn_rc}")
 
     def on_disconnect(self, client, userdata, conn_rc):
         if conn_rc == 0:
             self._disconnect_flag.set()
+            self.log.info("Disconnection succeeded")
         else:
-            self.log.error(f"Unexpected disconnect, rc={conn_rc}")
+            self.log.error(f"Disconnection encountered error, rc={conn_rc}")
 
         self._connected = False
-        self._bad_connect = False
+        self._bad_connected = False

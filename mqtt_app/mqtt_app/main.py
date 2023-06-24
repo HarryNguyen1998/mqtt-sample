@@ -1,8 +1,8 @@
 import logging
-from typing import Callable
 import signal
 import sys
 import threading
+from typing import Callable
 
 from mqtt_app.config import Config
 from mqtt_app.models.content_generator import charger_sessions_gen
@@ -15,6 +15,7 @@ logger = logging.getLogger()
 
 
 def register_exit_signal_handler(shutdown: Callable[[], None]):
+    """Register callback to be called when receiving SIGINT or SIGTERM."""
     def cleanup(signalnum, handler):
         shutdown()
 
@@ -29,8 +30,7 @@ def main():
     exit_flag = threading.Event()
     pub = Publisher(Config.BROKER_ADDR, debug=Config.DEBUG_PRINT)
     sub = Subscriber(Config.BROKER_ADDR, debug=Config.DEBUG_PRINT)
-    content_generator = generate_content_stream()
-
+    generator_instance = charger_sessions_gen()
 
     def shutdown():
         pub.disconnect()
@@ -50,10 +50,10 @@ def main():
 
     # Waiting loop.
     while not exit_flag.is_set():
-        if (pub.connected and sub.connected):
+        if pub.connected and sub.connected:
             break
 
-        if pub.bad_connect or sub.bad_connect:
+        if pub.bad_connected or sub.bad_connected:
             logger.error("Abort because connection was refused.")
             shutdown()
 

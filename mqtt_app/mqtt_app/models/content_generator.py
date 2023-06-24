@@ -1,13 +1,14 @@
+import logging
 import random
-from typing import Generator
+from collections.abc import Iterator
 
 from .charger_session import ChargerSessionModel
 
-import logging
 logger = logging.getLogger(__name__)
 
-def generate_content_stream() -> Generator[tuple[str, str], None, None]:
-    """A generator that reprensents each charger session."""
+
+def charger_sessions_gen() -> Iterator[tuple[str, str]]:
+    """A generator that creates new charger sessions."""
     session_counter = 1
     random_amount = random.randint(1, 100)
     while True:
