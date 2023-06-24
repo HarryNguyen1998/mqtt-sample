@@ -10,5 +10,11 @@ class ChargerSessionRepository:
     def create_charger_session(self, charger_session: ChargerSessionModel):
         charger_session_orm = ChargerSessionOrm(**charger_session.dict(by_alias=True))
         self._session.add(charger_session_orm)
-        self._session.commit()
+
+        try:
+            self._session.commit()
+        except Exception as ex:
+            self._session.rollback()
+            raise ex
+
         return charger_session_orm
