@@ -1,4 +1,4 @@
-from model.charger_session import ChargerSessionModel
+from .charger_session import ChargerSessionModel
 
 
 def generate_content():

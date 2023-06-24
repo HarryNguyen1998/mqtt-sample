@@ -1,7 +1,5 @@
 FROM python:3.10-slim
 
-EXPOSE 5000
-
 WORKDIR /app
 
 # Doesn't prompt graphical timezone.

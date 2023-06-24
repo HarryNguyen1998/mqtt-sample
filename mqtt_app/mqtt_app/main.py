@@ -4,8 +4,8 @@ import signal
 import sys
 import threading
 
-from infra.transport import Publisher, Subscriber
-from model.content_generator import generate_content
+from mqtt_app.models.content_generator import generate_content
+from mqtt_app.transport import Publisher, Subscriber
 
 logging.basicConfig(
     level=logging.DEBUG, format="%(asctime)s %(levelname)-7s %(name)s: %(message)s"

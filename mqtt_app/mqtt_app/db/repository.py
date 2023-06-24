@@ -1,5 +1,5 @@
-from infra.db.orm import ChargerSessionOrm
-from model.charger_session import ChargerSessionModel
+from mqtt_app.db.orm import ChargerSessionOrm
+from mqtt_app.models.charger_session import ChargerSessionModel
 from sqlalchemy.orm import Session
 
 

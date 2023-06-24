@@ -1,6 +1,6 @@
-from infra.db.db import get_session
-from infra.db.repository import ChargerSessionRepository
-from model.charger_session import ChargerSessionModel
+from mqtt_app.db.db import get_session
+from mqtt_app.db.repository import ChargerSessionRepository
+from mqtt_app.models.charger_session import ChargerSessionModel
 from pydantic import ValidationError
 from sqlalchemy import exc
 

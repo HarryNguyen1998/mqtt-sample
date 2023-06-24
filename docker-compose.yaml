@@ -16,13 +16,14 @@ services:
   mqtt_app:
     build:
       context: ./mqtt_app
-    command: python main.py
+    command: python -m mqtt_app.main
     environment:
       - DB_URL=mysql://root:root@db:3306/testing?charset=utf8mb4
       - BROKER_ADDR=mqtt_broker
       - APP_DEBUG=true
     depends_on:
-      - web
+      db:
+         condition: service_healthy
 
   db:
     image: mysql:latest
