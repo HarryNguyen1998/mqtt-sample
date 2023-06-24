@@ -1,6 +1,6 @@
 from api.db.db import get_session
 from api.models.charger_session import ChargerSessionModel
-from api.repository import ChargerSessionRepository
+from api.db.repository import ChargerSessionRepository
 from fastapi import APIRouter, HTTPException
 
 router = APIRouter()
@@ -8,6 +8,10 @@ router = APIRouter()
 
 @router.get("/")
 async def get_all() -> list[ChargerSessionModel]:
+    """Get all charger sessions.
+
+    :return: a list charger session models.
+    """
     charger_sessions = []
     async with get_session() as session:
         repo = ChargerSessionRepository(session)
@@ -18,6 +22,13 @@ async def get_all() -> list[ChargerSessionModel]:
 
 @router.get("/{id}")
 async def get(id: int) -> ChargerSessionModel:
+    """Get a charger session by ID.
+
+    :param id: ID of the charger session to get.
+    :return: a charger session.
+    :raise: if no charger session with the specified id is found, a 404 error is
+    raised. 
+    """
     charger_session = None
     async with get_session() as session:
         repo = ChargerSessionRepository(session)

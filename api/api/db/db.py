@@ -12,6 +12,7 @@ LocalSession = sessionmaker(bind=engine, class_=AsyncSession)
 
 @asynccontextmanager
 async def get_session() -> AsyncGenerator[AsyncSession, None]:
+    """Get a DB session that will close automatically when it's out of scope."""
     session = LocalSession()
     try:
         yield session
