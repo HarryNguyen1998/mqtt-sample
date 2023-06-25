@@ -8,7 +8,7 @@ class Publisher(MQTTConnector):
         super().__init__(broker_addr, name, debug)
         self.topic = topic
 
-    def publish(self, value, qos=0):
+    def publish(self, value, qos=1):
         """Publishes a JSON string to the MQTT broker.
 
         :param value: the JSON string to be published.

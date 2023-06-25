@@ -60,11 +60,23 @@ def main():
         exit_flag.wait(1)
 
     # Main loop.
-    sub.subscribe("charger/1/connector/1/session/+")
+    subscribe_topic = "charger/1/connector/1/session/+"
+    try:
+        sub.subscribe(subscribe_topic)
+    except Exception as ex:
+        logger.error(f"Abort because failed to subscribe ex={ex}")
+        shutdown()
+
     while not exit_flag.is_set():
+        # Make sure the subscriber is connected, so that message can be received
+        # for the 1st time.
+        if not sub.acknowledged(subscribe_topic):
+            exit_flag.wait(1)
+            continue
+
         topic, content = next(generator_instance)
         pub.topic = topic
-        pub.publish(content, 2)
+        pub.publish(content)
         exit_flag.wait(60)
 
 
