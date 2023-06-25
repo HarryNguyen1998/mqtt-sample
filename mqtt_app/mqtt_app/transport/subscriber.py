@@ -40,6 +40,9 @@ class Subscriber(MQTTConnector):
 
     def acknowledged(self, topic: str) -> bool:
         """Whether the topic has been subscribed."""
+        if not topic in self._topic_acks:
+            self.log.error(f"Haven't subscribe to topic={topic}")
+            return False
         return self._topic_acks[topic].acknowledged
 
     def on_subscribe(self, client, userdata, mid, granted_qos):
