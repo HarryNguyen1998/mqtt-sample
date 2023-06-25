@@ -4,4 +4,4 @@
 alembic upgrade head
 
 # Run the API.
-uvicorn api.main:app --reload --workers 1 --host 0.0.0.0 --port 8000
+exec uvicorn api.main:app --reload --workers 1 --host 0.0.0.0 --port 8000

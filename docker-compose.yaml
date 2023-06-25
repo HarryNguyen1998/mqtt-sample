@@ -31,9 +31,10 @@ services:
       - MYSQL_ROOT_PASSWORD=root
       - MYSQL_DATABASE=testing
     healthcheck:
-      test: mysqladmin ping -h 127.0.0.1 -u $$MYSQL_USER --password=$$MYSQL_PASSWORD
-      timeout: 5s
-      retries: 10
+      test: mysql -uroot -p$$MYSQL_ROOT_PASSWORD --execute "SHOW DATABASES;"
+      interval: 7s
+      timeout: 7s
+      retries: 5
     ports:
       - 3306:3306
 
