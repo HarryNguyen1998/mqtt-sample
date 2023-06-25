@@ -23,7 +23,9 @@ services:
       - DEBUG_PRINT=true
     depends_on:
       db:
-         condition: service_healthy
+        condition: service_healthy
+      mqtt_broker:
+        condition: service_healthy
 
   db:
     image: mysql:latest
@@ -41,6 +43,11 @@ services:
   mqtt_broker:
     image: emqx:latest
     container_name: mqtt_broker
+    healthcheck:
+      test: /opt/emqx/bin/emqx_ctl status
+      interval: 7s
+      timeout: 7s
+      retries: 5
     ports:
     - "18083:18083"
     - "8883:8883"
